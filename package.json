@@ -1,0 +1,23 @@
+{
+  "name": "lacerdaslope",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ebay.js",
+  "dependencies": {
+    "request": "^2.79.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VulcanoAhab/lacerdaSlope.git"
+  },
+  "author": "VulcanoAhab",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/VulcanoAhab/lacerdaSlope/issues"
+  },
+  "homepage": "https://github.com/VulcanoAhab/lacerdaSlope#readme"
+}
