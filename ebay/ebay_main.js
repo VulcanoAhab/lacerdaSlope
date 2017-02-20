@@ -21,21 +21,22 @@ var ebay_interface = {
           url += "&SECURITY-APPNAME="+this.configs.app_id;
       this.urls_list.push(url);
     }
-    console.log("Done mounting "+ this.urls_list.length +" URl[s]")
+    console.log("(•) Done mounting "+ this.urls_list.length +" URl[s]")
     return this
   },
 
   search:function () {
     for (i=0;i<this.urls_list.length;i++) {
       var url=this.urls_list[i];
-      console.log('GET: '+ url);
+      console.log('(•) GET: '+ url);
       request(url, function (error, response, body) {
           if (!error && response.statusCode == 200) {
-                var results=ebay.response(body);
-                results.map(function(e){console.log(e)});
+                var response=new ebay.response();
+                response.parse(body);
+                response.insert();
               }
           else {
-                console.log("[ERROR] " + body);
+                console.log("(••) ERROR " + body);
           }
       })
     }
@@ -43,5 +44,5 @@ var ebay_interface = {
 
 }
 
-console.log("STARTING EBAY SEARCH")
+console.log("(•) STARTING EBAY SEARCH")
 ebay_interface.mount_urls().search()

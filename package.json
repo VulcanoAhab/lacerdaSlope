@@ -2,7 +2,7 @@
   "name": "lacerdaslope",
   "version": "1.0.0",
   "description": "",
-  "main": "ebay.js",
+  "main": "",
   "dependencies": {
     "request": "^2.79.0"
   },
