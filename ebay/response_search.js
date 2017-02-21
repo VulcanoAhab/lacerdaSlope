@@ -58,7 +58,7 @@ var response = function () {
 
         //update metadata
         resp.search_term=this.metadata.search_term;
-        resp.search_created_at=this.metadata.created_at;
+        resp.search_created_at=this.metadata.search_created_at;
         resp.description='toDo';
 
         //keep in results
