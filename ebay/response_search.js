@@ -1,6 +1,6 @@
 var exports = module.exports;
 
-var db=require('./ebay_persistance.js');
+var db=require('./persistance.js');
 
 var helper = function(){
   this.test_value=function(value){
@@ -55,10 +55,12 @@ var response = function () {
           "currency":helpis.test_money(_resp.sellingStatus, '@currencyId'),
           "price":helpis.test_money(_resp.sellingStatus, '__value__'),
         }
+
         //update metadata
         resp.search_term=this.metadata.search_term;
-        resp.url=this.metadata.url;
-        resp.created_at=this.metadata.created_at;
+        resp.search_created_at=this.metadata.created_at;
+        resp.description='toDo';
+
         //keep in results
         this.results.push(resp);
       }}
