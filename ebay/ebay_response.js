@@ -1,5 +1,7 @@
 var exports = module.exports;
 
+var db=require('./ebay_persistance.js');
+
 var helper = function(){
   this.test_value=function(value){
     if (!value){return value;}
@@ -18,13 +20,21 @@ var response = function () {
 
   this.results=[];
 
+  this.metadata={};
+
   this.parse=function(raw_response){
 
     var _response=JSON.parse(raw_response);
-    var _itens=_response.findItemsByKeywordsResponse[0].searchResult[0];
+
+    var _findItems=_response.findItemsByKeywordsResponse[0];
+    var _itens=_findItems.searchResult[0];
     var _search=_itens.item;
 
-    var status=_response.findItemsByKeywordsResponse[0].ack[0];
+    var pagination=_findItems.paginationOutput[0];
+    this.metadata.pages_total=pagination.totalPages;
+    this.metadata.pages_number=pagination.pageNumber;
+
+    var status=_findItems.ack[0];
     var item_count=_itens["@count"];
     var search_results=[];
 
@@ -36,7 +46,7 @@ var response = function () {
       for (i=0; i<_search.length; i++){
         var _resp=_search[i];
         var resp={
-          "id":_resp.itemId[0],
+          "item_id":_resp.itemId[0],
           "title":_resp.title[0],
           "location":_resp.location[0],
           "url":_resp.viewItemURL[0],
@@ -45,12 +55,17 @@ var response = function () {
           "currency":helpis.test_money(_resp.sellingStatus, '@currencyId'),
           "price":helpis.test_money(_resp.sellingStatus, '__value__'),
         }
+        //update metadata
+        resp.search_term=this.metadata.search_term;
+        resp.url=this.metadata.url;
+        resp.created_at=this.metadata.created_at;
+        //keep in results
         this.results.push(resp);
       }}
     }
 
   this.insert=function () {
-      this.results.map(function(e){console.log(e);})
+      this.results.map(function(e){db.EbayES.insert_doc(e);})
   }
 
 }

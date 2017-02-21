@@ -36,6 +36,27 @@ var esUtils = {
     }
   },
 
+  time_id:function(ob_id){
+
+    var datis=new Date(new Date().getTime())
+    var day=datis.getDate();
+    var month=datis.getMonth()+1;
+    var year=datis.getFullYear();
+    var string_datis=day+"-"+month+"-"+year;
+    return ob_id+"___"+string_datis
+
+  },
+
+  delete_all_byType:function(index, doctype) {
+    client.deleteByQuery({
+      'index':index,
+      'type':doctype,
+      'body':{'query':{'match_all':{}}}}),
+      function(err,resp,status) {
+        console.log("delete",resp);
+      }
+  },
+
 }
 
 exports.esUtils=esUtils;
