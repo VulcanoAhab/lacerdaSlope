@@ -69,7 +69,7 @@ var eSearch = function () {
 
             }
         else {
-              console.log("(••) ERROR " + body);
+          console.log("(••) REQUEST ERROR " + body);
         }
       })
   }

@@ -31,6 +31,45 @@ var EbayES = {
 
   delete_all: esUtils.delete_all_byType.bind(this, esUtils.index, doctype),
 
+  update_doc:function (id, doc) {
+      client.update({
+        index:esUtils.index,
+        type:doctype,
+        id:id,
+        //body:{"script":{"inline":"ctx._source.currency='teste'"}}},
+        body:doc,},
+          function(err, resp, status){console.log("(•) UPDATE: ", resp)})
+  },
+
+  fetch_noDescription:function () {
+    var search_query={
+      index:esUtils.index,
+      type:doctype,
+      size: 15,
+      from: 0,
+      body: {
+          query: {
+            match: { "currency": "USD" }
+          },
+        }
+      };
+
+    var searchis=function (search_query) {
+
+        client.search(search_query).then(
+          function (resp) {
+            console.log(resp)
+            // var hits = body.hits.hits;
+            // var total = body.hits.total;
+            // console.log('HITS Count: ' +total);
+            // hits.forEach(hit => { console.log(hit)});
+          }, function (err) {
+                console.trace(err.message);}
+          );
+        }
+
+  },
+
 
 }
 
