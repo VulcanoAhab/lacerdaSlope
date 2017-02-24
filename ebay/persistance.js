@@ -41,12 +41,13 @@ var EbayES = {
           function(err, resp, status){console.log("(•) UPDATE: ", resp)})
   },
 
-  fetch_noDescription:function () {
+  fetch_noDescription:function (callback) {
 
       var search_query={
         index:esUtils.index,
         type:doctype,
-        scroll: '30s'
+        scroll: '30s',
+        _source:['item_id',],
         body: {
           query: {
             match: { "currency": "USD" }
@@ -54,7 +55,26 @@ var EbayES = {
         }
       }
 
+      var noDescription=[];
 
+      client.search(search_query, function getMoreUntilDone(error, response) {
+        // collect the title from each response
+        response.hits.hits.forEach(function (hit) {
+        noDescription.push({"product_code":hit._id, "es_id":hit._source.item_id});
+        });
+
+        if (response.hits.total > noDescription.length) {
+          client.scroll({
+          scrollId: response._scroll_id,
+            scroll: '30s'
+              }, getMoreUntilDone);
+            } else {
+              console.log('(•) Done collecting to noDescription: ', noDescription.length);
+              callback(noDescription)
+            }
+      });
+
+  }
 
 
 
