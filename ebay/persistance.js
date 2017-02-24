@@ -42,36 +42,24 @@ var EbayES = {
   },
 
   fetch_noDescription:function () {
-    var search_query={
-      index:esUtils.index,
-      type:doctype,
-      size: 15,
-      from: 0,
-      body: {
+
+      var search_query={
+        index:esUtils.index,
+        type:doctype,
+        scroll: '30s'
+        body: {
           query: {
             match: { "currency": "USD" }
           },
         }
-      };
+      }
 
-    var searchis=function (search_query) {
 
-        client.search(search_query).then(
-          function (resp) {
-            console.log(resp)
-            // var hits = body.hits.hits;
-            // var total = body.hits.total;
-            // console.log('HITS Count: ' +total);
-            // hits.forEach(hit => { console.log(hit)});
-          }, function (err) {
-                console.trace(err.message);}
-          );
-        }
 
-  },
 
 
 }
+
 
 //api
 exports.EbayES=EbayES;
