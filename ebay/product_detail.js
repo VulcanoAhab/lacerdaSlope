@@ -13,21 +13,17 @@ var eDetail = function() {
   this.configs=econfigs;
   this.urls_list=[];
 
-  this.add_target=function(product_code, es_id){
-    this._targets.push({"product_code":product_code, "es_id":es_id})
+  this.add_target=function(toDo) {
+    this._targets.push({"product_code":toDo.product_code, "es_id":toDo.es_id})
+  }
+
+  this.add_all=function(toDos, ctx) {
+    toDos.forEach(ctx.add_target, ctx);
   }
 
   this.productsToEnrinch=function(){
 
-    var add_all=function(callback, toDos) {
-      console.log(toDos);
-      toDos.forEach(function(todo){
-        callback(todo.product_code, todo.es_id);
-      })
-    }
-
-    add_all.bind(this.add_target);
-    db.EbayES.fetch_noDescription(add_all);
+    db.EbayES.fetch_noDescription(this.add_all, this);
   }
 
   this.mount_urls=function(){

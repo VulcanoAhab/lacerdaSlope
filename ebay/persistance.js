@@ -41,7 +41,7 @@ var EbayES = {
           function(err, resp, status){console.log("(•) UPDATE: ", resp)})
   },
 
-  fetch_noDescription:function (callback) {
+  fetch_noDescription:function (callback, ctx) {
 
       var search_query={
         index:esUtils.index,
@@ -70,7 +70,7 @@ var EbayES = {
               }, getMoreUntilDone);
             } else {
               console.log('(•) Done collecting to noDescription: ', noDescription.length);
-              callback(noDescription)
+              callback(noDescription, ctx);
             }
       });
 
