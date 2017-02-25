@@ -64,6 +64,7 @@ var response = function () {
         resp.search_term=this.metadata.search_term;
         resp.search_created_at=this.metadata.search_created_at;
         resp.description='toDo';
+        resp.page=this.metadata.pages_number;
 
         //keep in results
         this.results.push(resp);

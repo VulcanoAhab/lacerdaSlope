@@ -1,3 +1,8 @@
+var exports = module.exports;
+
+var lacerda=require('../lacerda/es_utils.js');
+var esUtils=lacerda.esUtils;
+
 var response = function () {
 
   this.results=[];
@@ -9,19 +14,20 @@ var response = function () {
     var _response=JSON.parse(raw_response);
     var _search=_response.results;
 
-    var seller_addr=_response.seller_address;s
-
-
     var offset=_response.paging.offset;
     var limit=_response.paging.limit;
 
     var item_count=_response.paging.total;
     var search_results=[];
 
+    console.log('TOTAL', item_count, typeof item_count);
 
     if (item_count>0) {
       for (i=0; i<_search.length; i++){
+
         var _resp=_search[i];
+        var seller_addr=_resp.seller_address;
+
         var resp={
           "item_id":_resp.id,
           "title":_resp.title,
@@ -36,10 +42,15 @@ var response = function () {
           "url":_resp.permalink,
         }
 
-        //update metadata
+        //update values
         resp.search_term=this.metadata.search_term;
         resp.search_created_at=this.metadata.search_created_at;
         resp.description='toDo';
+        resp.page=offset/limit;
+
+        this.metadata.offset=offset;
+        this.metadata.limit=limit;
+        this.metadata.item_count=item_count;
 
         //keep in results
         this.results.push(resp);

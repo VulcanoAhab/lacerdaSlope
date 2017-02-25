@@ -2,6 +2,9 @@ var request = require('request');
 var ebay = require('./response_search.js');
 var econfigs = require('./configs.json');
 
+var lacerda=require('../lacerda/es_utils.js');
+var esUtils=lacerda.esUtils;
+
 var eSearch = function () {
 
   this.urls_list=[];
@@ -31,20 +34,8 @@ var eSearch = function () {
     return this
   }
 
-  this.paging_url=function(url, next_page_number){
-    var target_rex="&paginationInput.pageNumber=(\d+)"
-    var rex_res=target_rex.exec(url);
-    if((!rex_res[1]) || (rex_res[1] >= next_page_number)) {
-      return 'end';
-    }
-    var to_replace=rex_res[0];
-    var new_value="&paginationInput.pageNumber="+rex_res[1];
-    var new_url=url.replace(to_replace, new_value);
-    return new_url;
-  }
-
   this.search_keyword=function(url, search_term, page_index) {
-
+      var that=this;
       request(url, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var resp=new ebay.response();
@@ -61,9 +52,10 @@ var eSearch = function () {
             //test for pagination
             if (resp.metadata.pages_number > page_index){
               var next_page=page_index+1;
-              var next_url=this.paging_url(url, next_page);
-              if (nex_url != 'end') {
-                this.search_keyword(next_url, search_term, next_page);
+              var rex_string="&paginationInput.pageNumber="
+              var next_url=esUtils.paging_url(url, next_page, rex_string);
+              if (next_url != 'end') {
+                that.search_keyword(next_url, search_term, next_page);
               }
             }
 
@@ -75,12 +67,10 @@ var eSearch = function () {
   }
 
   this.search_many=function () {
-
     this.urls_list.map( function(e) {
       var url=e.url;
       var search_term=e.search_term;
       var page_index=e.page_index;
-
       this.search_keyword(url, search_term);}, this)
   }
 

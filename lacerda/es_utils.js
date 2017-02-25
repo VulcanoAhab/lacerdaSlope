@@ -63,6 +63,19 @@ var esUtils = {
     var words=to_list.split(" ").filter(
       function(word){return word.length > 3;});
     return words;
+  },
+
+  paging_url:function(url, next_page_number, rex_string){
+    var pattern=rex_string+"(\\d+)";
+    var _rex=new RegExp(pattern);
+    var rex_res=_rex.exec(url);
+    if((!rex_res) || (!rex_res[1]) || (rex_res[1] >= next_page_number)) {
+      return 'end';
+    }
+    var to_replace=rex_res[0];
+    var new_value=rex_string+next_page_number;
+    var new_url=url.replace(to_replace, new_value);
+    return new_url;
   }
 
 }
