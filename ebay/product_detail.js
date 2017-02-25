@@ -24,6 +24,7 @@ var eDetail = function() {
   this.productsToEnrinch=function(){
 
     db.EbayES.fetch_noDescription(this.add_all, this);
+    return this
   }
 
   this.mount_urls=function(){
@@ -41,6 +42,7 @@ var eDetail = function() {
                             'product_code':target_code,
                             'es_id':es_id})
     }
+    //return this;
   }
 
   this.product_detail=function(request_obj){
@@ -58,6 +60,8 @@ var eDetail = function() {
         resp.metadata.detail_created_at=datis;
         resp.metadata.es_id=es_id;
         resp.metadata.item_id=item_id;
+
+        //console.log(body);
 
         //parse body
         resp.parse(body);

@@ -47,7 +47,7 @@ var esUtils = {
 
   },
 
-  delete_all_byType:function(index, doctype) {
+  delete_all_byType:function(client, index, doctype) {
     client.deleteByQuery({
       'index':index,
       'type':doctype,
@@ -56,6 +56,14 @@ var esUtils = {
         console.log("delete",resp);
       }
   },
+
+  textToWordsList: function(text) {
+    var new_text=text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+    var to_list=new_text.replace(/\s{2,}/g," ");
+    var words=to_list.split(" ").filter(
+      function(word){return word.length > 3;});
+    return words;
+  }
 
 }
 

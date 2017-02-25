@@ -34,7 +34,7 @@ var eSearch = function () {
   this.paging_url=function(url, next_page_number){
     var target_rex="&paginationInput.pageNumber=(\d+)"
     var rex_res=target_rex.exec(url);
-    if (!rex_res[1]) || (rex_res[1] >= next_page_number){
+    if((!rex_res[1]) || (rex_res[1] >= next_page_number)) {
       return 'end';
     }
     var to_replace=rex_res[0];

@@ -29,16 +29,15 @@ var EbayES = {
     });
   },
 
-  delete_all: esUtils.delete_all_byType.bind(this, esUtils.index, doctype),
+  delete_all: esUtils.delete_all_byType.bind(this, client, esUtils.index, doctype),
 
   update_doc:function (id, doc) {
       client.update({
         index:esUtils.index,
         type:doctype,
         id:id,
-        //body:{"script":{"inline":"ctx._source.currency='teste'"}}},
-        body:doc,},
-          function(err, resp, status){console.log("(•) UPDATE: ", resp)})
+        body:doc,
+      },function(err, resp, status){console.log("(•) UPDATE: ", resp)})
   },
 
   fetch_noDescription:function (callback, ctx) {
@@ -50,7 +49,7 @@ var EbayES = {
         _source:['item_id',],
         body: {
           query: {
-            match: { "currency": "USD" }
+            match: { "description": "toDo" }
           },
         }
       }
@@ -60,7 +59,7 @@ var EbayES = {
       client.search(search_query, function getMoreUntilDone(error, response) {
         // collect the title from each response
         response.hits.hits.forEach(function (hit) {
-        noDescription.push({"product_code":hit._id, "es_id":hit._source.item_id});
+        noDescription.push({"es_id":hit._id, "product_code":hit._source.item_id});
         });
 
         if (response.hits.total > noDescription.length) {

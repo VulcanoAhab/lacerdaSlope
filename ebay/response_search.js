@@ -1,6 +1,9 @@
 var exports = module.exports;
 
 var db=require('./persistance.js');
+var lacerda=require('../lacerda/es_utils.js');
+
+var esUtils=lacerda.esUtils;
 
 var helper = function(){
   this.test_value=function(value){
@@ -48,6 +51,7 @@ var response = function () {
         var resp={
           "item_id":_resp.itemId[0],
           "title":_resp.title[0],
+          "title_cloud":esUtils.textToWordsList(_resp.title[0]),
           "location":_resp.location[0],
           "url":_resp.viewItemURL[0],
           "subtitle":helpis.test_value(_resp.subtitle),
