@@ -4,9 +4,9 @@ var exports = module.exports;
 var persist= require('../lacerda/esPersistance.js');
 
 
-var EbayES =persist.BaseES;
-EbayES.doctype='ebay';
+var mercadoES =persist.BaseES;
+mercadoES.doctype='mercadolibre';
 
 
 //api
-exports.EbayES=EbayES;
+exports.mercadoES=mercadoES;

@@ -11,11 +11,12 @@ var mSearch = function () {
   this.urls_list=[];
   this.configs=mconfigs;
 
-  this.mount_url=function(keyword, country_id, offset) {
+  this.mount_url=function(keyword, country_id, category_id, offset) {
     var _url="https://api.mercadolibre.com/sites/";
         _url+=country_id;
         _url+="/search?q="+keyword;
-        _url+="&offset="+offset
+        _url+="&category="+country_id+category_id;
+        _url+="&offset="+offset;
 
     return {"url":_url,
             "search_term":keyword,
@@ -23,21 +24,25 @@ var mSearch = function () {
             "offset":offset}
   }
 
-  this.add_url=function(keyword, country_id, offset){
-    var url=this.mount_url(keyword, country_id, offset);
+  this.add_url=function(keyword, country_id, category_id, offset){
+    var url=this.mount_url(keyword, country_id, category_id, offset);
     this.urls_list.push(url);
   }
 
   this.mount_urls=function () {
-    //var ilimit=mconfigs.keywords.length;
-    var ilimit=2;
+    var ilimit=mconfigs.keywords.length;
+    //var ilimit=2;
     for (i=0; i<ilimit; i++){
       var keyword=mconfigs.keywords[i];
-      //var jlimit=mconfigs.countries.length;
-      var jlimit=2;
+      var jlimit=mconfigs.countries.length;
+      //var jlimit=2;
       for (j=0; j<jlimit;j++){
         var country=mconfigs.countries[j];
-        this.add_url(keyword, country, 0);
+        climit=mconfigs.categories.length
+        for (c=0; c<climit; c++){
+          var category=mconfigs.categories[c];
+          this.add_url(keyword, country, category, 0);
+        }
       }
     }
   }
@@ -57,7 +62,7 @@ var mSearch = function () {
 
           //body
           resp.parse(body);
-          //resp.insert();
+          resp.insert();
 
           //test for pagination
           var next_offset=resp.metadata.offset+resp.metadata.limit;

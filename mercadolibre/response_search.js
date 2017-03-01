@@ -1,7 +1,36 @@
 var exports = module.exports;
 
 var lacerda=require('../lacerda/es_utils.js');
+var db=require('./persistance.js')
 var esUtils=lacerda.esUtils;
+
+var build_payments=function(response){
+  var payments=[];
+  if (response.accepts_mercadopago){
+    payments.push('MercadoPago');
+  }
+  if (response.non_mercado_pago_payment_methods){
+    var pays=response.non_mercado_pago_payment_methods;
+    for (i=0; i<pays.length; i++) {
+      var p=pays[i];
+      payments.push(p);
+    }
+  }
+  return payments;
+}
+
+var build_descriptions=function(response){
+  var dis=[];
+  if (response.descriptions){
+    var ds=response.descriptions;
+    for (i=0;i<ds.length;i++){
+      var d=ds[i];
+      dis.push(d.id);
+    }
+  }
+  return dis;
+}
+
 
 var response = function () {
 
@@ -40,6 +69,9 @@ var response = function () {
           "currency":_resp.currency_id,
           "price":_resp.price,
           "url":_resp.permalink,
+          "location":seller_addr.country.name,
+          "payment":build_payments(_resp),
+          "descriptions_ids":build_descriptions(_resp)
         }
 
         //update values
@@ -58,7 +90,7 @@ var response = function () {
     }
 
   this.insert=function () {
-      this.results.map(function(e){db.EbayES.insert_doc(e);})
+      this.results.map(function(e){db.mercadoES.insert_doc(e);})
   }
 
 }

@@ -10,10 +10,10 @@ var esUtils = {
   test_lacerda : function (client, doctype) {
 
 
-    var ebay_index={index: _index, type: doctype};
+    var _index={index: _index, type: doctype};
 
     try {
-      client.count(ebay_index, function(err,resp,status) {
+      client.count(_index, function(err,resp,status) {
         if(err) {
           if (err.message.indexOf('index_not_found_exception') > 0){
             console.log("(•) CREATING INDEX");
@@ -47,15 +47,6 @@ var esUtils = {
 
   },
 
-  delete_all_byType:function(client, index, doctype) {
-    client.deleteByQuery({
-      'index':index,
-      'type':doctype,
-      'body':{'query':{'match_all':{}}}}),
-      function(err,resp,status) {
-        console.log("delete",resp);
-      }
-  },
 
   textToWordsList: function(text) {
     var new_text=text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
