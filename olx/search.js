@@ -202,7 +202,7 @@ var oSearch = function () {
               var targetUrl=el.getAttribute("href");
               if (!targetUrl.indexOf("olx.com")){continue}
               resp.results.push({
-                        "id":el.getAttribute("id"),
+                        "item_id":el.getAttribute("id"),
                         "url":targetUrl,
                         "price":price,
                         "region":region,
@@ -232,12 +232,13 @@ var oSearch = function () {
           e.created_at=Helpers.extractDateTime(e.created_at);
           //wordcloud
           e.title_cloud=esUtils.textToWordsList(e.title);
-          //db.mercadoES.insert_doc(e)
+          //metadata
+          e.search_term=rObj.metadata.search_term;
+          e.search_created_at=rObj.metadata.search_created_at;
+          e.description='toDo';
+          e.page=rObj.metadata.page;
+          db.mercadoES.insert_doc(e)
         });
-
-        console.log("******************\n", rObj);
-        console.log("************************");
-
         return horseman.close();
       });
   }
