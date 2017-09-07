@@ -4,8 +4,8 @@ var request=require('request');
 var emarket=require('./response_search.js')
 var mconfigs=require('./configs.json');
 
-var lacerda=require('../lacerda/es_utils.js');
-var esUtils=lacerda.esUtils;
+var esLacerda=require('../lacerda/es_utils.js');
+var esUtils=esLacerda.esUtils;
 
 var mSearch = function () {
   this.urls_list=[];
