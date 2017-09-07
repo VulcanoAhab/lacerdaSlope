@@ -141,21 +141,19 @@ var oSearch = function () {
     var horseman = new Horseman();
     var datis=new Date(new Date().getTime()).toString();
     var _url=requestDict.url;
-    // start response obj
+    // response obj
     rObj={"metadata":{}, "results":[], "error":{}};
     rObj.metadata.search_term=requestDict.search_term;
     rObj.metadata.search_created_at=datis;
     rObj.metadata.country=requestDict.country;
     rObj.metadata.page=Helpers.extractPageNumber(_url);
-
-    // start data fetch
-    console.log("[+] GETTING: ", _url)
+    //   fetch data
+    console.log("\t[+] GET: ", _url)
     horseman
       .userAgent('Mozilla/5.0 (Windows NT 6.1; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0')
       .open(_url)
       .waitForSelector('a[title="Última página"]')
       .evaluate(function(resp) {
-        try {
           //Page-Global values
           var lastis=$('a[title="Última página"]');
           if (lastis){
@@ -191,7 +189,6 @@ var oSearch = function () {
               }
               return baseDict
             }
-
             //Element values
             for (i=0; i<elements.length; i++){
               var el=elements[i];
@@ -208,24 +205,24 @@ var oSearch = function () {
                         "region":region,
                         "created_at":dateTime,
                         "title":title})}}
-          return resp;
-        } catch (e) {
-            resp.error=e;
-            return resp;
-          }
-        }, rObj)// end evaluate
+        return resp;}, rObj)
+      //map => last tranforms and save
       .then (function(rObj) {
-        rObj.metadata.limit=Helpers.extractPageNumber(rObj.metadata.lastUrl);
-        //map => last tranforms and save
+        //set vals
+        _limit=Helpers.extractPageNumber(rObj.metadata.lastUrl);
+        _search_term=rObj.metadata.search_term;
+        _country=rObj.metadata.country;
+        _page=rObj.metadata.page;
+        //transform elements
         rObj.results.map(function(e){
           //location
           var region=e["region"];
           delete e["region"];
           region=Helpers.extractRegion(region);
-          e.city=region.city
-          e.state=region.state
-          e.country=rObj.metadata.country
-          e.location=rObj.metadata.country
+          e.city=region.city;
+          e.state=region.state;
+          e.country=_country;
+          e.location=_country;
           //price
           e.price=Helpers.extractPrice(e.price);
           //dateTime
@@ -233,13 +230,24 @@ var oSearch = function () {
           //wordcloud
           e.title_cloud=esUtils.textToWordsList(e.title);
           //metadata
-          e.search_term=rObj.metadata.search_term;
+          e.search_term=_search_term;
           e.search_created_at=rObj.metadata.search_created_at;
           e.description='toDo';
-          e.page=rObj.metadata.page;
-          db.mercadoES.insert_doc(e)
-        });
-        return horseman.close();
+          e.page=_page;
+          //save element
+          db.mercadoES.insert_doc(e)});
+        // paging
+        if (_page<_limit){
+            requestDict=that.mount_reques(_search_term, _country, _page+1);
+            console.log("\n\n%%%%%%%%%%%%%%%%%%%%%%%%% AGAINNNNN", requestDict, "\n\n")
+            that.search(requestDict);
+        } else {
+          console.log("[+] ENDING: ",rObj.metadata.page, rObj.metadata.limit);
+          return horseman.close();
+        }
+      })
+      .catch(function(e) {
+        console.log("[-] FAIL ", e)
       });
   }
 

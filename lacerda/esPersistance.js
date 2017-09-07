@@ -5,8 +5,8 @@ var elasticsearch = require('elasticsearch');
 var lacerda= require('./es_utils.js');
 
 var client = new elasticsearch.Client({
-  host: 'localhost:9200',
-  log: 'trace'
+  host: 'localhost:9200'//,
+  //log: 'trace'
 });
 
 var esUtils=lacerda.esUtils;
@@ -29,7 +29,7 @@ var BaseES = {
       id:esUtils.time_id(_id),
       body: doc,
       },function(err,resp) {
-        console.log("(•) INSERTED: ",resp);
+        console.log("(•) INSERTED: ",resp["_id"]);
     });
   },
 
