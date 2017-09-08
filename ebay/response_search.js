@@ -41,6 +41,8 @@ var response = function () {
     var item_count=_itens["@count"];
     var search_results=[];
 
+    console.log("[+] COUNT", item_count)
+
     if (status != "Success") {
       throw new Error("[REQUEST FAIL]");
     }

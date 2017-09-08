@@ -14,6 +14,7 @@ var eSearch = function () {
     var page_index=1;
     for (i=0; i<this.configs.keywords.length; i++) {
       var keyword=this.configs.keywords[i];
+      var countryCode="BR"; 
       var url = "http://svcs.ebay.com/services/search/FindingService/v1";
           url += "?OPERATION-NAME=findItemsByKeywords";
           url += "&SERVICE-VERSION=1.0.0";
@@ -23,6 +24,8 @@ var eSearch = function () {
           url += "&keywords="+keyword;
           url += "&paginationInput.entriesPerPage=100";
           url += "&paginationInput.pageNumber="+page_index;
+          url +="&itemFilter(0).name=LocatedIn";
+          url +="&itemFilter(0).value="+countryCode;
           url += "&SECURITY-APPNAME="+this.configs.app_id;
 
 
@@ -37,7 +40,9 @@ var eSearch = function () {
   this.search_keyword=function(url, search_term, page_index) {
       var that=this;
       request(url, function (error, response, body) {
+        console.log("IN REQUEST");
         if (!error && response.statusCode == 200) {
+            console.log("GOT RESULTS");
             var resp=new ebay.response();
 
             //search metadata
@@ -79,4 +84,5 @@ var eSearch = function () {
 
 console.log("(•) STARTING EBAY SEARCH")
 search_ebay=new eSearch();
-search_ebay.mount_urls().search_many()
+search_ebay.mount_urls();
+search_ebay.search_many();

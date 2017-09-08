@@ -15,7 +15,7 @@ var Helpers = {
   extractPageNumber: function (urlIn){
     var re=/o=(\d+)/i;
     var stringNumber=urlIn.match(re);
-    if (!stringNumber.length){return 0}
+    if (!stringNumber || !stringNumber.length){return 0}
     var number=Number(stringNumber[1]);
     if (!number){return 0;}
     return number
@@ -33,13 +33,16 @@ var Helpers = {
   extractRegion: function (stringAdrr) {
     var baseDict={"city":"notDetected","state":"notDetected"};
     var listCityState=stringAdrr.split("-");
-    if (!listCityState.length){return baseDict;}
-    if (listCityState[0]){
-      baseDict["city"]=listCityState[0].trim("\t").trim();
+    if (!listCityState || !listCityState.length || listCityState[0]){return baseDict;}
+    var rawCity=listCityState[0].trim("\t");
+    if (rawCity){
+      baseDict["city"]=rawCity.trim();
     }
     if (listCityState[1]){
-      baseDict["state"]=listCityState[1].trim("\t").trim();
-    }
+      var rawState=listCityState[1].trim("\t");
+      if (rawState){
+        baseDict["state"]=rawState.trim();
+      }}
     return baseDict;
   },
 
@@ -58,18 +61,35 @@ var Helpers = {
       "Dez":12,
 
     }
+    var todayNames=["hoje", "hoy"];
+    var yesterdayNames=["ontem", "ayer"]
+
     var today=new Date()
     var elDate=datisDict.date;
     if (!elDate){return null}
     //do date
-    if (elDate.toLowerCase().trim() == "hoje"){
+    elDate=elDate.trim()
+    if (todayNames.indexOf(elDate.toLowerCase())){
       var day=today.getDate();
       var month=today.getMonth();
-    } else {
+    } if(yesterdayNames.indexOf(elDate.toLowerCase())) {
+      var tods=today.getDate();
+      if (tods == 1){
+        var day=30; //just for testing ** fix it!
+        var month=today.getMonth()-1;
+      } else {
+        var day=tods-1
+        var month=today.getMonth()
+      }} else {
       var dM=elDate.split(" ");
+      if (!dM || !dM.length || !dM[1]){return null}
       var elMonth=dM[1].trim();
-      var day=dM[0].trim();
       var month=monthDict[elMonth];
+      if (dM[0]){
+        var day=dM[0].trim();
+      } else {
+        var day=null; //not good * fix it
+      }
     }
     //couldn't go back a year yet - dont know how they display with year
     var year=today.getFullYear();
@@ -80,7 +100,7 @@ var Helpers = {
       minute=0
     }
     var times=inTime.split(":");
-    if (!times.length){
+    if (!times || !times.length || !times[0] || !times[1]){
       var hour=0;
       var minute=0;
     } else {
@@ -95,18 +115,16 @@ var Helpers = {
 
 var oSearch = function () {
   //search globals
-  this.urls_list=[];
+  this.requests_list=[];
   this.configs=mconfigs;
   this.bases={
     "brazil":function(term, pageNumber) {
       _url="http://www.olx.com.br/brasil?o="
       _url+=pageNumber
       _url+="&ot=1&q="+term
-      return _url
-    }
-  };
+      return _url}}
   //mount requests
-  this.mount_request=function(keyword, country_name, pageNumber) {
+  this.mountRequest=function(keyword, country_name, pageNumber) {
     _buildUrl=this.bases[country_name.toLowerCase()];
     _url=_buildUrl(keyword, pageNumber)
     return {"url":_url,
@@ -115,12 +133,12 @@ var oSearch = function () {
             "pageNumber":pageNumber}
   };
 
-  this.add_url=function(keyword, country_id, pageNumber){
-    var url=this.mount_url(keyword, country_id, pageNumber);
-    this.urls_list.push(url);
+  this.addRequest=function(keyword, country_name, pageNumber){
+    var url=this.mountRequest(keyword, country_name, pageNumber);
+    this.requests_list.push(url);
   }
 
-  this.mountBaseUrls=function () {
+  this.mountRequests=function () {
     var ilimit=mconfigs.keywords.length;
     //var ilimit=2;
     for (i=0; i<ilimit; i++){
@@ -129,7 +147,7 @@ var oSearch = function () {
       //var jlimit=2;
       for (j=0; j<jlimit;j++){
         var country=mconfigs.countries[j];
-          this.add_url(keyword, country, 1);
+          this.addRequest(keyword, country, 1);
       }
     }
   }
@@ -147,16 +165,17 @@ var oSearch = function () {
     rObj.metadata.search_created_at=datis;
     rObj.metadata.country=requestDict.country;
     rObj.metadata.page=Helpers.extractPageNumber(_url);
-    //   fetch data
+    //   fetch
     console.log("\t[+] GET: ", _url)
     horseman
       .userAgent('Mozilla/5.0 (Windows NT 6.1; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0')
       .open(_url)
-      .waitForSelector('a[title="Última página"]')
+      .log("\t[+]GOT: "+_url)
+      //.waitForSelector('a[title="Última página"]')
       .evaluate(function(resp) {
           //Page-Global values
           var lastis=$('a[title="Última página"]');
-          if (lastis){
+          if (lastis && lastis[0]){
             resp.metadata.lastUrl=lastis[0].href;
             } else {
             resp.metadata.lastUrl="last";
@@ -168,14 +187,14 @@ var oSearch = function () {
             //grabbers functions
             function grabPrice(el) {
               var elnObj=el.getElementsByClassName("OLXad-list-price");
-              if (!elnObj.length){return "";}
+              if (!elnObj || !elnObj.length){return "";}
               var eln=elnObj[0].textContent;
               return eln
             }
 
             function grabRegion(el){
               var elAdrrObj=el.getElementsByClassName("text detail-region");
-              if (!elAdrrObj.length) {return "";}
+              if (!elAdrrObj || !elAdrrObj.length) {return "";}
               var elAdrr=elAdrrObj[0].textContent;
               return elAdrr
             }
@@ -183,9 +202,13 @@ var oSearch = function () {
             function grabDateTime(el){
               baseDict={"time":null, "date":null}
               var elDateObj=el.getElementsByClassName("text mb5px");
-              if (elDateObj.length){
-                baseDict["date"]=elDateObj[0].textContent
-                baseDict["time"]=elDateObj[1].textContent
+              if (elDateObj && elDateObj.length){
+                if (elDateObj[0]){
+                  baseDict["date"]=elDateObj[0].textContent
+                }
+                if (elDateObj[1]){
+                  baseDict["time"]=elDateObj[1].textContent
+                }
               }
               return baseDict
             }
@@ -204,7 +227,8 @@ var oSearch = function () {
                         "price":price,
                         "region":region,
                         "created_at":dateTime,
-                        "title":title})}}
+                        "title":title})}} else {
+              console.log("[-] No results for: ", targetUrl)}
         return resp;}, rObj)
       //map => last tranforms and save
       .then (function(rObj) {
@@ -238,11 +262,12 @@ var oSearch = function () {
           db.mercadoES.insert_doc(e)});
         // paging
         if (_page<_limit){
-            requestDict=that.mount_reques(_search_term, _country, _page+1);
-            console.log("\n\n%%%%%%%%%%%%%%%%%%%%%%%%% AGAINNNNN", requestDict, "\n\n")
+            requestDict=that.mountRequest(_search_term, _country, _page+1);
+            console.log("[+] PAGGING: ", requestDict.url)
+            horseman.close()
             that.search(requestDict);
         } else {
-          console.log("[+] ENDING: ",rObj.metadata.page, rObj.metadata.limit);
+          console.log("[+] ENDING: ",_page, _limit);
           return horseman.close();
         }
       })
@@ -251,16 +276,15 @@ var oSearch = function () {
       });
   }
 
-  // this.search_many=function () {
-  //   this.urls_list.map( function(e) {
-  // }
-  //
+  this.search_many=function () {
+     this.requests_list.map( function(e) {
+      this.search(e)}, this)}
+
 
 }
 
-
 var olxis=new oSearch();
-var _reqObj=olxis.mount_request("tv box", "Brazil", 1);
-olxis.search(_reqObj);
+olxis.mountRequests();
+olxis.search_many();
 
 //exports.oSearch=oSearch
